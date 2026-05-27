@@ -21,11 +21,12 @@ app.use(express.json());
 app.post('/api/auth/login', (req, res) => {
   const { identifiant, password } = req.body;
   
-  // LOGIQUE TEMPORAIRE POUR TESTER
-  console.log("Tentative de connexion pour :", identifiant);
-  
-  // Simulez une réponse positive pour voir si le blocage saute
-  res.status(200).json({ message: "Connexion réussie (test)" });
+  // Exemple simple : remplacez par votre logique de base de données
+  if (identifiant === "etogo" && password === "123") {
+    res.status(200).json({ success: true, message: "Connexion autorisée" });
+  } else {
+    res.status(401).json({ success: false, message: "Identifiants incorrects" });
+  }
 });
 
 const swaggerOptions = {
