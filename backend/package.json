@@ -1,20 +1,19 @@
 {
-  "name": "web",
-  "private": true,
-  "version": "0.0.0",
+  "name": "ged-backend",
+  "version": "1.0.0",
   "type": "module",
+  "main": "index.js",
   "scripts": {
-  "dev": "vite",
-  "start": "node index.js",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview"
-},
+    "start": "node index.js"
+  },
+
   "dependencies": {
     "@google-cloud/storage": "^7.19.0",
     "@supabase/supabase-js": "^2.103.0",
     "dotenv": "^17.3.1",
     "lucide-react": "^0.574.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
     "mssql": "^11.0.1",
     "multer": "^2.1.1",
     "node-fetch": "^3.3.2",
