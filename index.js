@@ -39,7 +39,7 @@ app.get('/documents', (req, res) => {
   res.json({ message: "Liste des documents consultée" });
 });
 
-app.listen(port, () => {
-  console.log(`✅ Serveur lancé sur http://localhost:${port}`);
-  console.log(`📄 Documentation : http://localhost:${port}/api-docs`);
+app.listen(PORT, () => {
+  console.log(`✅ Serveur lancé sur http://localhost:${PORT}`);
+  console.log(`📄 Documentation : http://localhost:${PORT}/api-docs`);
 });
