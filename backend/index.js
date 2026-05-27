@@ -17,6 +17,17 @@ app.use(cors({
 // Permet à Express de lire le JSON envoyé par Vercel lors de la connexion
 app.use(express.json());
 
+
+app.post('/api/auth/login', (req, res) => {
+  const { identifiant, password } = req.body;
+  
+  // LOGIQUE TEMPORAIRE POUR TESTER
+  console.log("Tentative de connexion pour :", identifiant);
+  
+  // Simulez une réponse positive pour voir si le blocage saute
+  res.status(200).json({ message: "Connexion réussie (test)" });
+});
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
