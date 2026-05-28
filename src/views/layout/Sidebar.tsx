@@ -14,11 +14,11 @@ export const Sidebar: React.FC = () => {
   const { currentPage, navigate, sidebarOpen, toggleSidebar } = navigation;
   const [userRole, setUserRole] = useState<{ role_id: number; role_code: string } | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
-
-  // Vérifier si l'utilisateur peut accéder au menu validation (pas AGENT)
-  const canValidate = () => {
-    return authService.canValidate();
-  };
+  const userStr = localStorage.getItem('user');
+  const storedUser = userStr ? JSON.parse(userStr) : null;
+  const role_code = storedUser?.role_code || storedUser?.role || '';
+  const isAdmin = role_code === 'ADMIN';
+  const canValidate = () => role_code !== 'AGENT' && role_code !== '';
 
   // Récupérer le rôle de l'utilisateur depuis la base de données
   useEffect(() => {
@@ -68,7 +68,7 @@ export const Sidebar: React.FC = () => {
     items.push({ icon: <Search size={20} />, text: 'Recherche', page: 'search' as const });
     
     // Admin uniquement (role ADMIN)
-    if (authService.isAdmin()) {
+    if (isAdmin) {
       items.push({ icon: <Users size={20} />, text: 'Utilisateurs', page: 'users' as const });
       items.push({ icon: <Shield size={20} />, text: 'Audit & Logs', page: 'audit' as const });
       items.push({ icon: <Settings size={20} />, text: 'Paramètres', page: 'settings' as const });

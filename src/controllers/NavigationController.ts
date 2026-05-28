@@ -9,9 +9,14 @@ import { useState, useCallback } from 'react';
 
 export type Page = 'dashboard' | 'home' | 'documents' | 'search' | 'users' | 'audit' | 'settings' | 'validation' | 'validated-documents' | 'rejected-documents' | 'dossiers';
 
-export function useNavigationController(initialPage: Page = 'home') {
-  const [currentPage,  setCurrentPage]  = useState<Page>(initialPage);
-  const [sidebarOpen,  setSidebarOpen]  = useState(true);
+export function useNavigationController() {
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  const role_code = user?.role_code || user?.role || '';
+  const initialPage: Page = (role_code === 'ADMIN') ? 'dashboard' : 'home';
+
+  const [currentPage, setCurrentPage] = useState<Page>(initialPage);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navigate = useCallback((page: Page) => {
     setCurrentPage(page);

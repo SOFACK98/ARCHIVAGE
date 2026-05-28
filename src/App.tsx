@@ -71,7 +71,12 @@ const AppContent: React.FC = () => {
         );
       case 'dossiers':
         return <DossiersPage />;
-      default: return isAdmin ? <Dashboard /> : <HomePage />;
+      default: {
+        const role = authService.getCurrentUser()?.role_code || authService.getCurrentUser()?.role || '';
+        if (role === 'ADMIN') return <Dashboard />;
+        if (role === 'CHEF_AGENCE' || role === 'CHEF_DEPT' || role === 'CHEF_DEPARTEMENT') return <ValidationPage />;
+        return <HomePage />;
+      }
     }
   };
 
