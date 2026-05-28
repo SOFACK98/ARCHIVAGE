@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { supabase } from '../config/supabase.js';
 
@@ -31,10 +31,25 @@ router.post('/login', async (req, res) => {
       { expiresIn: '8h' }
     );
 
-    res.json({ success: true, token, user: { id: user.id, email: user.email, role: user.role } });
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        nom: user.nom,
+        prenom: user.prenom,
+        role: user.role,
+        role_code: user.role_code,
+        agence_id: user.agence_id,
+        agence_nom: user.agence_nom,
+        departement_id: user.departement_id,
+        departement_nom: user.departement_nom,
+      }
+    });
   } catch (err) {
-    console.error('Erreur serveur:', err);
-    res.status(500).json({ success: false, message: 'Erreur interne du serveur' });
+    console.error('Erreur serveur login:', err.message, err.stack);
+    res.status(500).json({ success: false, message: err.message || 'Erreur interne du serveur' });
   }
 });
 
