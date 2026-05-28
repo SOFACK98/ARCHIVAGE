@@ -108,7 +108,7 @@ router.post('/audit/log', authMiddleware, async (req, res) => {
 
 // ── Utilisateurs ──────────────────────────────────────────────
 router.get('/users', authMiddleware, async (req, res) => {
-  const { data, error } = await supabase.from('utilisateurs').select(`*, roles(nom, code), agences(nom), departements(nom)`).order('nom');
+  const { data, error } = await supabase.from('utilisateurs').select('*').order('nom');
   if (error) return res.status(500).json({ message: error.message });
   res.json(data || []);
 });
@@ -139,9 +139,9 @@ router.get('/roles', authMiddleware, async (req, res) => {
 
 // ── Auth me ───────────────────────────────────────────────────
 router.get('/auth/me', authMiddleware, async (req, res) => {
-  const { data, error } = await supabase.from('utilisateurs').select(`*, roles(nom, code)`).eq('id', req.user.id).single();
+  const { data, error } = await supabase.from('utilisateurs').select('*').eq('id', req.user.id).single();
   if (error) return res.status(500).json({ message: error.message });
-  res.json({ ...data, role_code: data.roles?.code, role_nom: data.roles?.nom });
+  res.json(data);
 });
 
 export default router;

@@ -7,21 +7,24 @@ const router = Router();
 // GET /api/dossiers
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('dossiers')
-      .select(`*, utilisateurs(nom, prenom)`)
-      .order('nom');
+    const { data, error } = await supabase.from('dossiers').select('*').order('nom');
     if (error) throw error;
-    const dossiers = (data || []).map(d => ({
-      ...d,
-      created_by_nom: d.utilisateurs ? `${d.utilisateurs.prenom} ${d.utilisateurs.nom}` : '',
-      nb_documents: 0,
-    }));
-    // Compter les documents par dossier
+
+    const userIds = [...new Set((data || []).map(d => d.created_by).filter(Boolean))];
+    const { data: users } = userIds.length
+      ? await supabase.from('utilisateurs').select('id,nom,prenom').in('id', userIds)
+      : { data: [] };
+    const userMap = Object.fromEntries((users || []).map(u => [u.id, `${u.prenom||''} ${u.nom||''}`.trim()]));
+
     const { data: counts } = await supabase.from('dossier_documents').select('dossier_id');
     const countMap = {};
-    (counts || []).forEach((c) => { countMap[c.dossier_id] = (countMap[c.dossier_id] || 0) + 1; });
-    dossiers.forEach(d => { d.nb_documents = countMap[d.id] || 0; });
+    (counts || []).forEach(c => { countMap[c.dossier_id] = (countMap[c.dossier_id] || 0) + 1; });
+
+    const dossiers = (data || []).map(d => ({
+      ...d,
+      created_by_nom: userMap[d.created_by] || '',
+      nb_documents: countMap[d.id] || 0,
+    }));
     res.json(dossiers);
   } catch (err) {
     res.status(500).json({ message: err.message });
