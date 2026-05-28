@@ -11,7 +11,7 @@ router.get('/', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('documents')
-      .select(`*, types_documents(nom), departements(nom), agences(nom), utilisateurs(nom, prenom), dossiers(nom)`)
+      .select(`*, types_documents(nom), departements(nom), agences(nom), utilisateurs(nom, prenom)`)
       .order('created_at', { ascending: false });
     if (error) throw error;
     const docs = (data || []).map(d => ({
@@ -20,7 +20,6 @@ router.get('/', authMiddleware, async (req, res) => {
       departement_nom: d.departements?.nom,
       agencia_nom: d.agences?.nom,
       uploaded_by_nom: d.utilisateurs ? `${d.utilisateurs.prenom} ${d.utilisateurs.nom}` : null,
-      dossier_nom: d.dossiers?.nom,
     }));
     res.json(docs);
   } catch (err) {

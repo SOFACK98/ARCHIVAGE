@@ -21,11 +21,14 @@ export function useDocumentController() {
       const mapped = data.map((d: any) => ({
         id: d.id,
         title: d.titre,
-        type: d.type || 'Non défini',
+        type: d.type_nom || d.type || 'Non défini',
         client: d.uploaded_by_nom || 'N/A',
         date: new Date(d.created_at).toLocaleDateString('fr-FR'),
         confidentiality: d.confidentialite === 'critique' ? 'Critique' : d.confidentialite === 'eleve' ? 'Élevé' : 'Normal',
-        status: d.statut || 'en_attente'
+        status: d.statut || 'en_attente',
+        fichier_nom: d.fichier_nom,
+        fichier_path: d.fichier_path,
+        fichier_type: d.fichier_type,
       }));
       setDocuments(mapped);
     } catch (error) {
