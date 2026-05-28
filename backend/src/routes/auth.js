@@ -12,6 +12,7 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Email et mot de passe requis.' });
 
   try {
+    // 1. Récupérer l'utilisateur
     const { data: user, error } = await supabase
       .from('utilisateurs')
       .select('*')
@@ -21,12 +22,40 @@ router.post('/login', async (req, res) => {
     if (error || !user)
       return res.status(401).json({ success: false, message: 'Utilisateur non trouvé' });
 
+    // 2. Vérifier le mot de passe
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch)
       return res.status(401).json({ success: false, message: 'Identifiants incorrects' });
 
+    // 3. Récupérer role_code depuis la table roles
+    let role_code = 'AGENT';
+    let role_nom = 'Agent';
+    if (user.role_id) {
+      const { data: role } = await supabase
+        .from('roles')
+        .select('code, nom')
+        .eq('id', user.role_id)
+        .single();
+      if (role) { role_code = role.code; role_nom = role.nom; }
+    }
+
+    // 4. Récupérer nom agence
+    let agence_nom = null;
+    if (user.agence_id) {
+      const { data: agence } = await supabase.from('agences').select('nom').eq('id', user.agence_id).single();
+      agence_nom = agence?.nom || null;
+    }
+
+    // 5. Récupérer nom département
+    let departement_nom = null;
+    if (user.departement_id) {
+      const { data: dept } = await supabase.from('departements').select('nom').eq('id', user.departement_id).single();
+      departement_nom = dept?.nom || null;
+    }
+
+    // 6. Générer le token avec le vrai role_code
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: role_code },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
     );
@@ -39,17 +68,18 @@ router.post('/login', async (req, res) => {
         email: user.email,
         nom: user.nom,
         prenom: user.prenom,
-        role: user.role || user.role_code,
-        role_code: user.role_code || user.role,
+        role: role_code,
+        role_code,
+        role_nom,
         agence_id: user.agence_id,
-        agence_nom: user.agence_nom,
+        agence_nom,
         departement_id: user.departement_id,
-        departement_nom: user.departement_nom,
+        departement_nom,
       }
     });
   } catch (err) {
-    console.error('Erreur serveur login:', err.message, err.stack);
-    res.status(500).json({ success: false, message: err.message || 'Erreur interne du serveur' });
+    console.error('Erreur login:', err.message);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
