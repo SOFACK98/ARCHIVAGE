@@ -78,8 +78,8 @@ export const ValidationPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await apiService.getPendingValidation() as PendingDocument[];
-      const filtered = filterDocumentsByRole(data);
-      setDocuments(filtered);
+      console.log('[ValidationPage] pending docs reçus:', data?.length, data);
+      setDocuments(data || []);
     } catch (error) {
       console.error('Erreur chargement documents:', error);
       alert('Erreur lors du chargement des documents: ' + error);
