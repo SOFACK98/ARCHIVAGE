@@ -32,9 +32,11 @@ router.get('/', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { titre, type_document_id, departement_id, fichier_nom, fichier_path, fichier_type, fichier_taille, confidentialite } = req.body;
+    const reference = `DOC-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const { data, error } = await supabase
       .from('documents')
       .insert({
+        reference,
         titre, type_document_id, departement_id,
         fichier_nom, fichier_path, fichier_type, fichier_taille,
         confidentialite: confidentialite || 'normal',
