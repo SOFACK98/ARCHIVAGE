@@ -33,16 +33,25 @@ router.post('/', authMiddleware, async (req, res) => {
   try {
     const { titre, type_document_id, departement_id, fichier_nom, fichier_path, fichier_type, fichier_taille, confidentialite } = req.body;
     const reference = `DOC-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+    // Récupérer agence_id et departement_id depuis la BD si absent du token
+    const { data: userDb } = await supabase
+      .from('utilisateurs')
+      .select('agence_id, departement_id')
+      .eq('id', req.user.id)
+      .single();
+
     const { data, error } = await supabase
       .from('documents')
       .insert({
         reference,
-        titre, type_document_id, departement_id,
+        titre, type_document_id,
+        departement_id: departement_id || userDb?.departement_id || null,
         fichier_nom, fichier_path, fichier_type, fichier_taille,
         confidentialite: confidentialite || 'normal',
         statut: 'en_attente',
         uploaded_by: req.user.id,
-        agence_id: req.user.agence_id,
+        agence_id: userDb?.agence_id || null,
       })
       .select()
       .single();
