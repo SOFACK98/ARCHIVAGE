@@ -141,7 +141,7 @@ export const Sidebar: React.FC = () => {
           {sidebarOpen && (
             <div className="flex-1 overflow-hidden">
               <p className="font-medium text-sm truncate">{currentUser.name}</p>
-              <p className="text-xs text-slate-400">{currentUser.role}</p>              {currentUser.role_code !== 'CHEF_AGENCE' && currentUser.departement && (
+              <p className="text-xs text-slate-400">{storedUser?.role_nom || storedUser?.role_code || storedUser?.role || 'Agent'}</p>              {currentUser.role_code !== 'CHEF_AGENCE' && currentUser.departement && (
                 <p className="text-xs text-slate-400">Département : {currentUser.departement}</p>
               )}            </div>
           )}

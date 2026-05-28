@@ -53,7 +53,7 @@ export const HomePage: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold">Bienvenue, {user?.nom || currentUser.name?.split(' ')[0] || 'Utilisateur'}</h1>
               <p className="text-emerald-100">
-                {user?.role || currentUser.role}
+                {user?.role_nom || currentUser.role_nom || user?.role_code || user?.role || 'Agent'}
                 {!(user?.role_code === 'CHEF_AGENCE' || currentUser.role_code === 'CHEF_AGENCE') &&
                   (user?.departement_nom || currentUser.departement) ?
                   ` • ${user?.departement_nom || currentUser.departement}` : ''}
