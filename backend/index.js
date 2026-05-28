@@ -81,6 +81,12 @@ app.listen(PORT, () => {
           .status(401)
           .json({ success: false, message: "Utilisateur non trouvé" });
       }
+      if (error) {
+        console.error("Erreur Supabase :", error); // CECI EST IMPORTANT
+        return res
+          .status(500)
+          .json({ success: false, message: "Erreur DB: " + error.message });
+      }
 
       // 2. Comparer le mot de passe saisi avec le hash stocké
       const isMatch = await bcrypt.compare(password, user.password_hash);
