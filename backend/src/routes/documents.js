@@ -9,20 +9,41 @@ const upload = multer({ storage: multer.memoryStorage() });
 // GET /api/documents
 router.get('/', authMiddleware, async (req, res) => {
   try {
+    // Requête simple sans joins pour éviter les erreurs de FK
     const { data, error } = await supabase
       .from('documents')
-      .select(`*, types_documents(nom), departements(nom), agences(nom), utilisateurs(nom, prenom)`)
+      .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
+
+    // Enrichir avec les noms via des requêtes séparées
+    const typeIds = [...new Set((data || []).map(d => d.type_document_id).filter(Boolean))];
+    const agenceIds = [...new Set((data || []).map(d => d.agence_id).filter(Boolean))];
+    const deptIds = [...new Set((data || []).map(d => d.departement_id).filter(Boolean))];
+    const userIds = [...new Set((data || []).map(d => d.uploaded_by).filter(Boolean))];
+
+    const [types, agences, depts, users] = await Promise.all([
+      typeIds.length ? supabase.from('types_documents').select('id, nom').in('id', typeIds) : { data: [] },
+      agenceIds.length ? supabase.from('agences').select('id, nom').in('id', agenceIds) : { data: [] },
+      deptIds.length ? supabase.from('departements').select('id, nom').in('id', deptIds) : { data: [] },
+      userIds.length ? supabase.from('utilisateurs').select('id, nom, prenom').in('id', userIds) : { data: [] },
+    ]);
+
+    const typeMap = Object.fromEntries((types.data || []).map(t => [t.id, t.nom]));
+    const agenceMap = Object.fromEntries((agences.data || []).map(a => [a.id, a.nom]));
+    const deptMap = Object.fromEntries((depts.data || []).map(d => [d.id, d.nom]));
+    const userMap = Object.fromEntries((users.data || []).map(u => [u.id, `${u.prenom || ''} ${u.nom || ''}`.trim()]));
+
     const docs = (data || []).map(d => ({
       ...d,
-      type_nom: d.types_documents?.nom,
-      departement_nom: d.departements?.nom,
-      agencia_nom: d.agences?.nom,
-      uploaded_by_nom: d.utilisateurs ? `${d.utilisateurs.prenom} ${d.utilisateurs.nom}` : null,
+      type_nom: typeMap[d.type_document_id] || null,
+      departement_nom: deptMap[d.departement_id] || null,
+      agencia_nom: agenceMap[d.agence_id] || null,
+      uploaded_by_nom: userMap[d.uploaded_by] || null,
     }));
     res.json(docs);
   } catch (err) {
+    console.error('GET /documents error:', err.message);
     res.status(500).json({ message: err.message });
   }
 });
