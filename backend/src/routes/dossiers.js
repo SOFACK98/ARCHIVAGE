@@ -19,8 +19,8 @@ router.get('/', authMiddleware, async (req, res) => {
     }));
     // Compter les documents par dossier
     const { data: counts } = await supabase.from('dossier_documents').select('dossier_id');
-    const countMap: Record<number, number> = {};
-    (counts || []).forEach((c: any) => { countMap[c.dossier_id] = (countMap[c.dossier_id] || 0) + 1; });
+    const countMap = {};
+    (counts || []).forEach((c) => { countMap[c.dossier_id] = (countMap[c.dossier_id] || 0) + 1; });
     dossiers.forEach(d => { d.nb_documents = countMap[d.id] || 0; });
     res.json(dossiers);
   } catch (err) {
@@ -75,7 +75,7 @@ router.get('/:id/documents', authMiddleware, async (req, res) => {
       .select(`documents(id, titre, reference, fichier_nom, created_at, statut, types_documents(nom))`)
       .eq('dossier_id', req.params.id);
     if (error) throw error;
-    const docs = (data || []).map((d: any) => ({
+    const docs = (data || []).map((d) => ({
       ...d.documents,
       type: d.documents?.types_documents?.nom,
     }));
