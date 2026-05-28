@@ -117,8 +117,9 @@ export const ValidationPage: React.FC = () => {
     if (userRole === 'CHEF_AGENCE') {
       return currentUser?.agence_id !== undefined && doc.agencia_id !== undefined && currentUser.agence_id === doc.agencia_id;
     }
-    if (userRole === 'CHEF_DEPARTEMENT' || userRole === 'CHEF_DEPT') {
-      return true;
+    if (userRole === 'CHEF_DEPARTEMENT' || userRole === 'CHEF_DEPT') return true;
+    if (userRole === 'AGENT') {
+      return doc.uploaded_by_id === currentUser?.id;
     }
     return false;
   };

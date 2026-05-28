@@ -35,11 +35,19 @@ const enrichDocs = async (data) => {
 // GET /api/validation/pending
 router.get('/pending', authMiddleware, async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const role = req.user.role;
+    let query = supabase
       .from('documents')
       .select('*')
       .in('statut', ['en_attente', 'en_attente_critique', 'modif_en_attente'])
       .order('created_at', { ascending: false });
+
+    // Les agents ne voient que leurs propres documents
+    if (role === 'AGENT') {
+      query = query.eq('uploaded_by', req.user.id);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
     res.json(await enrichDocs(data));
   } catch (err) {
