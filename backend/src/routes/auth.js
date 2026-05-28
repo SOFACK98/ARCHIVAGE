@@ -6,16 +6,16 @@ import { supabase } from '../config/supabase.js';
 const router = Router();
 
 router.post('/login', async (req, res) => {
-  const { identifiant, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!identifiant || !password)
+  if (!email || !password)
     return res.status(400).json({ success: false, message: 'Email et mot de passe requis.' });
 
   try {
     const { data: user, error } = await supabase
       .from('utilisateurs')
       .select('*')
-      .eq('email', identifiant.trim())
+      .eq('email', email.trim())
       .single();
 
     if (error || !user)
