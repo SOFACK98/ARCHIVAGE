@@ -15,14 +15,15 @@ export function useUserController() {
   const reload = useCallback(async () => {
     try {
       const data = await apiService.getUsers();
-      const mapped = data.map((u: any) => ({
+      console.log('[Users] data reçue:', data);
+      const mapped = (data as any[]).map((u: any) => ({
         id: u.id,
-        name: `${u.prenom} ${u.nom}`,
+        name: `${u.prenom || ''} ${u.nom || ''}`.trim(),
         email: u.email,
-        role: u.role_nom || 'N/A',
+        role: u.role_nom || u.role_code || u.role || 'N/A',
         agence: u.agence_nom || 'N/A',
         departement: u.departement_nom || 'N/A',
-        status: u.statut === 'actif' ? 'Actif' : 'Inactif'
+        status: u.statut === 'actif' || u.statut === 'active' || u.actif === true ? 'Actif' : 'Inactif'
       }));
       setUsers(mapped);
     } catch (error) {
