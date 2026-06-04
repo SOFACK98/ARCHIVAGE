@@ -114,9 +114,28 @@ router.get('/users', authMiddleware, async (req, res) => {
 });
 
 router.post('/users', authMiddleware, async (req, res) => {
-  const { data, error } = await supabase.from('utilisateurs').insert(req.body).select().single();
-  if (error) return res.status(500).json({ message: error.message });
-  res.status(201).json(data);
+  try {
+    const { nom, prenom, email, telephone, password, role_id, departement_id, agence_id } = req.body;
+    if (!password) return res.status(400).json({ message: 'Mot de passe requis' });
+
+    const bcrypt = await import('bcryptjs');
+    const password_hash = await bcrypt.default.hash(password, 10);
+
+    const matricule = `MAT-${Date.now()}`;
+
+    const { data, error } = await supabase.from('utilisateurs').insert({
+      nom, prenom, email, telephone,
+      password_hash,
+      matricule,
+      role_id: role_id || null,
+      departement_id: departement_id || null,
+      agence_id: agence_id || null,
+    }).select().single();
+    if (error) return res.status(500).json({ message: error.message });
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 router.put('/users/:id', authMiddleware, async (req, res) => {
