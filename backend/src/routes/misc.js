@@ -121,12 +121,9 @@ router.post('/users', authMiddleware, async (req, res) => {
     const bcrypt = await import('bcryptjs');
     const password_hash = await bcrypt.default.hash(password, 10);
 
-    const matricule = `MAT-${Date.now()}`;
-
     const { data, error } = await supabase.from('utilisateurs').insert({
       nom, prenom, email, telephone,
       password_hash,
-      matricule,
       role_id: role_id || null,
       departement_id: departement_id || null,
       agence_id: agence_id || null,
