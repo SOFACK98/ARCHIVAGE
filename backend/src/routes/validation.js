@@ -85,7 +85,7 @@ router.post('/approve/:id', authMiddleware, async (req, res) => {
     const { error } = await supabase.from('documents').update({
       statut: 'valide',
       validated_at: new Date().toISOString(),
-      validateur_id: req.user.id,
+      validated_by: req.user.id,
     }).eq('id', req.params.id);
     if (error) throw error;
     res.json({ success: true, message: 'Document validé avec succès' });
